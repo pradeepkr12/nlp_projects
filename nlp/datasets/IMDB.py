@@ -1,4 +1,5 @@
 import torch
+import random
 from torchtext import data
 from torchtext import datasets
 
@@ -12,10 +13,10 @@ class IMDB_dataset:
     '''
     IMDB Dataset, using torchtext dataset to get the data
     '''
-    def __init__(self, imdb_datapath=None):
+    def __init__(self, imdb_datapath=None, spacy_tokenizer_language='en_core_web_sm'):
         self.TEXT = data.Field(tokenize='spacy',
-                               tokenizer_language='en_core_web_sm')
-        self.LABEL = data.LabelField(dtype = torch.float)
+                               tokenizer_language=spacy_tokenizer_language)
+        self.LABEL = data.LabelField(dtype=torch.float)
         self.imdb_datapath = imdb_datapath
         self.imdb = datasets.IMDB(self.imdb_datapath, self.TEXT, self.LABEL)
         self.train_data, self.test_data = self.imdb.splits(
@@ -25,8 +26,14 @@ class IMDB_dataset:
                                             label_field=self.LABEL,
                                             train='train', test='test')
 
-    def get_data(self):
+    def get_data(self, train=None, test=None, validation=None):
         '''
         Returns train, test dataset
         '''
-        return self.train_data, self.test_data
+        if validation is None:
+            return self.train_data, self.test_data
+        else:
+            # split the train into train and validation data and send
+            train_data, validaton_data = self.train_data.split(
+                                            random_state=random.seed(SEED))
+            return train_data, validaton_data, self.test_data
