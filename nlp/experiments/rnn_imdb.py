@@ -2,6 +2,7 @@ import torch
 from torchtext import data
 import torch.optim as optim
 import torch.nn as nn
+import time
 
 
 from nlp.datasets import IMDB
@@ -10,11 +11,13 @@ from nlp.models.utils import train, evaluate, epoch_time
 
 MAX_VOCAB_SIZE = 25_000
 BATCH_SIZE = 64
-
+# TODO
+# install spacy if not installed
 
 def run_experiment():
     imdb_datapath = "/Users/pradeepkumarmahato/pradeep/nlp/torch-data/aclImdb"
     spacy_language = "en_core_web_sm"
+    # TODO: if no imdb path give, then there is a issue
     imdb = IMDB.IMDB_dataset(imdb_datapath, spacy_language)
     train_data, valid_data, test_data = imdb.get_data(validation=True)
 
