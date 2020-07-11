@@ -18,13 +18,20 @@ class IMDB_dataset:
                                tokenizer_language=spacy_tokenizer_language)
         self.LABEL = data.LabelField(dtype=torch.float)
         self.imdb_datapath = imdb_datapath
-        self.imdb = datasets.IMDB(self.imdb_datapath, self.TEXT, self.LABEL)
-        self.train_data, self.test_data = self.imdb.splits(
-                                            path=self.imdb_datapath,
-                                            root=None,
-                                            text_field=self.TEXT,
-                                            label_field=self.LABEL,
-                                            train='train', test='test')
+        if imdb_datapath is not None:
+            self.imdb = datasets.IMDB(self.imdb_datapath, self.TEXT, self.LABEL)
+            self.train_data, self.test_data = self.imdb.splits(
+                                                path=self.imdb_datapath,
+                                                root=None,
+                                                text_field=self.TEXT,
+                                                label_field=self.LABEL,
+                                                train='train', test='test')
+        else:
+            self.train_data, self.test_data = datasets.IMDB.splits(
+                                                text_field=self.TEXT,
+                                                label_field=self.LABEL,
+                                                train='train', test='test')
+
 
     def get_data(self, train=None, test=None, validation=None):
         '''

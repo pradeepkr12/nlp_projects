@@ -22,8 +22,7 @@ except:
     os.system(f"python -m spacy download {SPACY_LANGUAGE}")
 
 def run_experiment():
-    # TODO: if no imdb path give, then there is a issue
-    imdb = IMDB.IMDB_dataset(imdb_datapath, spacy_language)
+    imdb = IMDB.IMDB_dataset(IMDB_DATAPATH, SPACY_LANGUAGE)
     train_data, valid_data, test_data = imdb.get_data(validation=True)
 
     # preprocess the data
