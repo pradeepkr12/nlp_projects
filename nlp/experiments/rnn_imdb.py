@@ -11,12 +11,17 @@ from nlp.models.utils import train, evaluate, epoch_time
 
 MAX_VOCAB_SIZE = 25_000
 BATCH_SIZE = 64
-# TODO
-# install spacy if not installed
+IMDB_DATAPATH = "/Users/pradeepkumarmahato/pradeep/nlp/torch-data/aclImdb"
+SPACY_LANGUAGE = "en_core_web_sm"
+try:
+    import spacy
+    nlp = spacy.load(SPACY_LANGUAGE)
+except:
+    print ("Spacy language missing")
+    import os
+    os.system(f"python -m spacy download {SPACY_LANGUAGE}")
 
 def run_experiment():
-    imdb_datapath = "/Users/pradeepkumarmahato/pradeep/nlp/torch-data/aclImdb"
-    spacy_language = "en_core_web_sm"
     # TODO: if no imdb path give, then there is a issue
     imdb = IMDB.IMDB_dataset(imdb_datapath, spacy_language)
     train_data, valid_data, test_data = imdb.get_data(validation=True)
