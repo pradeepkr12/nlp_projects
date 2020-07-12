@@ -1,18 +1,22 @@
 import torch
 from torchtext import data
+from torchtext.vocab import Vectors
 import torch.optim as optim
 import torch.nn as nn
 import time
-
+import logging
 
 from nlp.datasets import IMDB
-from nlp.models.rnn import RNN
+from nlp.models.rnn import RNN2
 from nlp.models.utils import train, evaluate, epoch_time
+from nlp.utils import mylogger
 
 MAX_VOCAB_SIZE = 25_000
 BATCH_SIZE = 64
 IMDB_DATAPATH = "/Users/pradeepkumarmahato/pradeep/nlp/torch-data/aclImdb"
 SPACY_LANGUAGE = "en_core_web_sm"
+PRETRAINED_MODEL_PATH = "/Users/pradeepkumarmahato/pradeep/nlp/torch-data/glove/glove.6B/glove.6B.300d.txt"
+
 
 try:
     import spacy
@@ -24,14 +28,24 @@ except:
 
 
 def run_experiment():
-    imdb = IMDB.IMDB_dataset(IMDB_DATAPATH, SPACY_LANGUAGE)
+    imdb = IMDB.IMDB_dataset(IMDB_DATAPATH, SPACY_LANGUAGE,
+                             include_lengths=True)
     train_data, valid_data, test_data = imdb.get_data(validation=True)
 
     # preprocess the data
 
     TEXT = imdb.TEXT
     LABEL = imdb.LABEL
-    TEXT.build_vocab(train_data, max_size=MAX_VOCAB_SIZE)
+
+    if PRETRAINED_MODEL_PATH is none:
+        PRETRAINED_MODEL_PATH = 'glove.6B.300d'
+
+    pretrained_weights = Vectors(name=PRETRAINED_MODEL_PATH,
+                                 unk_init=torch.Tensor.normal_)
+
+    TEXT.build_vocab(train_data,
+                     vectors=pretrained_weights,
+                     max_size=MAX_VOCAB_SIZE)
     LABEL.build_vocab(train_data)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -45,13 +59,29 @@ def run_experiment():
     # modelling
     N_EPOCHS = 5
     INPUT_DIM = len(TEXT.vocab)
-    EMBEDDING_DIM = 100
+    EMBEDDING_DIM = 300
     HIDDEN_DIM = 256
     OUTPUT_DIM = 1
+    N_LAYERS = 2
+    BIDIRECTIONAL = True
+    DROPOUT = 0.5
+    PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]
 
-    model = RNN(INPUT_DIM, EMBEDDING_DIM, HIDDEN_DIM, OUTPUT_DIM)
+    model = RNN2(
+                INPUT_DIM,
+                EMBEDDING_DIM,
+                HIDDEN_DIM,
+                OUTPUT_DIM,
+                N_LAYERS,
+                BIDIRECTIONAL,
+                DROPOUT,
+                PAD_IDX)
 
-    optimizer = optim.SGD(model.parameters(), lr=1e-3)
+    # set the pretrained weights
+    pretrained_embeddings = TEXT.vocab.vectors
+    model.embedding.weight.data.copy_(pretrained_embeddings)
+
+    optimizer = optim.Adam(model.parameters())
     criterion = nn.BCEWithLogitsLoss()
     model = model.to(device)
     criterion = criterion.to(device)
