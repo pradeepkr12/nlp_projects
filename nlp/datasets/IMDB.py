@@ -13,14 +13,8 @@ class IMDB_dataset:
     '''
     IMDB Dataset, using torchtext dataset to get the data
     '''
-    def __init__(self, imdb_datapath=None,
-                 spacy_tokenizer_language='en_core_web_sm',
-                 include_lengths=False,
-                 preprocessing=None):
-        self.TEXT = data.Field(tokenize='spacy',
-                               tokenizer_language=spacy_tokenizer_language,
-                               include_lengths=include_lengths,
-                               preprocessing=preprocessing)
+    def __init__(self, imdb_datapath=None, **kwargs):
+        self.TEXT = data.Field(kwargs)
         self.LABEL = data.LabelField(dtype=torch.float)
         self.imdb_datapath = imdb_datapath
         if imdb_datapath is not None:

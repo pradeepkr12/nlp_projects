@@ -5,18 +5,20 @@ import torch.optim as optim
 import torch.nn as nn
 import time
 import logging
+from transformers import BertTokenizer, BertModel
 
 from nlp.datasets import IMDB
-from nlp.models.fasttext import FastText
+from nlp.models.bert import BERTGRUSentiment
 from nlp.models.utils import train, evaluate, epoch_time
 from nlp.utils import mylogger
 
 MAX_VOCAB_SIZE = 25_000
 BATCH_SIZE = 64
 IMDB_DATAPATH = "/Users/pradeepkumarmahato/pradeep/nlp/torch-data/aclImdb"
-SPACY_LANGUAGE = "en_core_web_sm"
-PRETRAINED_MODEL_PATH = "/Users/pradeepkumarmahato/pradeep/nlp/torch-data/glove/glove.6B/glove.6B.300d.txt"
-
+SPACY_LANGUAGE = None
+PRETRAINED_MODEL_PATH = None
+BERT_PRETRAINED_TOKENIZER = "/Users/pradeepkumarmahato/pradeep/nlp/bert_bin/bert-base-uncased-vocab.txt"
+BERT_PRETRAINED_TOKENIZER = 'bert-base-uncased'
 
 try:
     import spacy
@@ -27,36 +29,37 @@ except:
     os.system(f"python -m spacy download {SPACY_LANGUAGE}")
 
 
-def generate_bigrams(x):
-    n_grams = set(zip(*[x[i:] for i in range(2)]))
-    for n_gram in n_grams:
-        x.append(' '.join(n_gram))
-    return x
-
 
 def run_experiment():
+
+    tokenizer = BertTokenizer.from_pretrained(BERT_PRETRAINED_TOKENIZER)
+    max_input_length = tokenizer.max_model_input_sizes['bert-base-uncased']
+
+    def tokenize_and_cut(sentence):
+        tokens = tokenizer.tokenize(sentence)
+        tokens = tokens[:max_input_length - 2]
+        return tokens
+
+    init_token_idx = tokenizer.cls_token_id
+    eos_token_idx = tokenizer.sep_token_id
+    pad_token_idx = tokenizer.pad_token_id
+    unk_token_idx = tokenizer.unk_token_id
+
     imdb = IMDB.IMDB_dataset(IMDB_DATAPATH,
-                             tokenize_language=SPACY_LANGUAGE,
                              include_lengths=False,
-                             preprocessing=generate_bigrams)
+                             batch_first=True,
+                             tokenize=tokenize_and_cut,
+                             preprocessing=tokenizer.convert_tokens_to_ids,
+                             init_token=init_token_idx,
+                             eos_token=eos_token_idx,
+                             pad_token=pad_token_idx,
+                             unk_token=unk_token_idx
+                             )
     train_data, valid_data, test_data = imdb.get_data(validation=True)
 
     # preprocess the data
     TEXT = imdb.TEXT
     LABEL = imdb.LABEL
-    # TODO
-    if PRETRAINED_MODEL_PATH is not None:
-        pretrained_weights = Vectors(name=PRETRAINED_MODEL_PATH,
-                                     unk_init=torch.Tensor.normal_)
-
-        TEXT.build_vocab(train_data,
-                         vectors=pretrained_weights,
-                         max_size=MAX_VOCAB_SIZE)
-    else:
-        TEXT.build_vocab(train_data,
-                         max_size=MAX_VOCAB_SIZE,
-                         vectors="glove.6B.100d",
-                         unk_init=torch.Tensor.normal_)
     LABEL.build_vocab(train_data)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -68,24 +71,31 @@ def run_experiment():
                                                         batch_size=BATCH_SIZE,
                                                         device=device)
     # modelling
-    N_EPOCHS = 5
-    INPUT_DIM = len(TEXT.vocab)
-    EMBEDDING_DIM = 300
+
+    bert = BertModel.from_pretrained('bert-base-uncased')
+    HIDDEN_DIM = 256
     OUTPUT_DIM = 1
-    PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]
+    N_LAYERS = 2
+    BIDIRECTIONAL = True
+    DROPOUT = 0.25
 
-    model = FastText(INPUT_DIM, EMBEDDING_DIM, OUTPUT_DIM, PAD_IDX)
+    model = BERTGRUSentiment(bert,
+                             HIDDEN_DIM,
+                             OUTPUT_DIM,
+                             N_LAYERS,
+                             BIDIRECTIONAL,
+                             DROPOUT)
 
-    # set the pretrained weights
-    pretrained_embeddings = TEXT.vocab.vectors
-    model.embedding.weight.data.copy_(pretrained_embeddings)
+    for name, param in model.named_parameters():
+        if name.startswith('bert'):
+            param.requires_grad = False
 
     optimizer = optim.Adam(model.parameters())
     criterion = nn.BCEWithLogitsLoss()
     model = model.to(device)
     criterion = criterion.to(device)
     best_valid_loss = float('inf')
-
+    N_EPOCHS = 5
     for epoch in range(N_EPOCHS):
         start_time = time.time()
         train_loss, train_acc = train(model, train_iterator, optimizer, criterion)

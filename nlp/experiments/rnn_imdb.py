@@ -24,7 +24,8 @@ except:
 
 
 def run_experiment():
-    imdb = IMDB.IMDB_dataset(IMDB_DATAPATH, SPACY_LANGUAGE)
+    imdb = IMDB.IMDB_dataset(IMDB_DATAPATH,
+                             tokenize_language=SPACY_LANGUAGE)
     train_data, valid_data, test_data = imdb.get_data(validation=True)
 
     # preprocess the data
