@@ -20,7 +20,10 @@ def train(model, iterator, optimizer, criterion):
     model.train()
     for batch in iterator:
         optimizer.zero_grad()
-        predictions = model(*batch.text).squeeze(1)
+        if isinstance(batch.text, torch.Tensor):
+            predictions = model(batch.text).squeeze(1)
+        else:
+            predictions = model(*batch.text).squeeze(1)
         loss = criterion(predictions, batch.label)
         acc = binary_accuracy(predictions, batch.label)
         loss.backward()

@@ -7,7 +7,7 @@ import time
 import logging
 
 from nlp.datasets import IMDB
-from nlp.models.rnn import RNN2
+from nlp.models.fasttext import FastText
 from nlp.models.utils import train, evaluate, epoch_time
 from nlp.utils import mylogger
 
@@ -27,9 +27,17 @@ except:
     os.system(f"python -m spacy download {SPACY_LANGUAGE}")
 
 
+def generate_bigrams(x):
+    n_grams = set(zip(*[x[i:] for i in range(2)]))
+    for n_gram in n_grams:
+        x.append(' '.join(n_gram))
+    return x
+
+
 def run_experiment():
     imdb = IMDB.IMDB_dataset(IMDB_DATAPATH, SPACY_LANGUAGE,
-                             include_lengths=True)
+                             include_lengths=False,
+                             preprocessing=generate_bigrams)
     train_data, valid_data, test_data = imdb.get_data(validation=True)
 
     # preprocess the data
@@ -62,22 +70,10 @@ def run_experiment():
     N_EPOCHS = 5
     INPUT_DIM = len(TEXT.vocab)
     EMBEDDING_DIM = 300
-    HIDDEN_DIM = 256
     OUTPUT_DIM = 1
-    N_LAYERS = 2
-    BIDIRECTIONAL = True
-    DROPOUT = 0.5
     PAD_IDX = TEXT.vocab.stoi[TEXT.pad_token]
 
-    model = RNN2(
-                INPUT_DIM,
-                EMBEDDING_DIM,
-                HIDDEN_DIM,
-                OUTPUT_DIM,
-                N_LAYERS,
-                BIDIRECTIONAL,
-                DROPOUT,
-                PAD_IDX)
+    model = FastText(INPUT_DIM, EMBEDDING_DIM, OUTPUT_DIM, PAD_IDX)
 
     # set the pretrained weights
     pretrained_embeddings = TEXT.vocab.vectors
