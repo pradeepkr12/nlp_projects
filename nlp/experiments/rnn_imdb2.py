@@ -33,19 +33,21 @@ def run_experiment():
     train_data, valid_data, test_data = imdb.get_data(validation=True)
 
     # preprocess the data
-
     TEXT = imdb.TEXT
     LABEL = imdb.LABEL
+    # TODO
+    if PRETRAINED_MODEL_PATH is not none:
+        pretrained_weights = Vectors(name=PRETRAINED_MODEL_PATH,
+                                     unk_init=torch.Tensor.normal_)
 
-    if PRETRAINED_MODEL_PATH is none:
-        PRETRAINED_MODEL_PATH = 'glove.6B.300d'
-
-    pretrained_weights = Vectors(name=PRETRAINED_MODEL_PATH,
-                                 unk_init=torch.Tensor.normal_)
-
-    TEXT.build_vocab(train_data,
-                     vectors=pretrained_weights,
-                     max_size=MAX_VOCAB_SIZE)
+        TEXT.build_vocab(train_data,
+                         vectors=pretrained_weights,
+                         max_size=MAX_VOCAB_SIZE)
+    else:
+        TEXT.build_vocab(train_data,
+                         max_size=MAX_VOCAB_SIZE,
+                         vectors="glove.6B.100d",
+                         unk_init=torch.Tensor.normal_)
     LABEL.build_vocab(train_data)
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
