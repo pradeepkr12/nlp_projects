@@ -1,0 +1,3 @@
+torch==1.6.0
+https://github.com/pytorch/text/master
+torchvision==0.7.0
