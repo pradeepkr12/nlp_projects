@@ -17,6 +17,8 @@ class IMDB():
         self.vocab_size = get_parameter_value(kwargs, 'vocab_size', 25000)
         self.batch_size= get_parameter_value(kwargs, 'batch_size', 32)
         self.device= get_parameter_value(kwargs, 'device', 'cpu')
+        self.device= torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
         self.tokenizer= get_parameter_value(kwargs, 'tokenizer', 'spacy')
         self.train_valid_split_ratio = get_parameter_value(kwargs,
                                                            'train_valid_split_ratio', 0.7)
