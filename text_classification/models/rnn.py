@@ -116,7 +116,7 @@ def evaluate(model, iterator, criterion, evaluation_metric):
     model.eval()
     with torch.no_grad():
         for batch in iterator:
-            predictions = model(*batch.text).squeeze(1)
+            predictions = model(batch.text[0]).squeeze(1)
             loss = criterion(predictions, batch.label)
             acc = evaluation_metric(predictions, batch.label)
             epoch_loss += loss.item()
