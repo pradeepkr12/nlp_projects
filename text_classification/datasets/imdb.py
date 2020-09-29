@@ -22,6 +22,11 @@ class IMDB():
                                                            'train_valid_split_ratio', 0.7)
         self.embedding_vectors = get_parameter_value(kwargs,
                                                      'embedding_vectors')
+        self.unk_init = get_parameter_value(kwargs, 'unk_initflag')
+        if self.unk_init is True:
+            self.unk_init = torch.Tensor.normal_
+        else:
+            self.unk_init = None
         self.TEXT = data.Field(tokenize=self.tokenizer,
                                include_lengths=True)
         self.LABEL = data.LabelField(dtype=torch.float)
