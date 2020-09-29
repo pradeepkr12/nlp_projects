@@ -22,16 +22,23 @@ class RNN(nn.Module):
 
 class model:
     def __init__(self, **kwargs):
-        self.input_dim = get_parameter_value(kwargs, 'input_dim')
         self.embedding_dim = get_parameter_value(kwargs, 'embedding_dim')
         self.hidden_dim = get_parameter_value(kwargs, 'hidden_dim')
         self.output_dim = get_parameter_value(kwargs, 'output_dim')
-        self.device = get_parameter_value(kwargs, 'device')
         self.n_epochs = get_parameter_value(kwargs, 'n_epochs', 10)
         self.evaluation_metric = get_parameter_value(kwargs,
                                                      'evaluation_metric')
         self.output_model_path = get_parameter_value(kwargs,
                                                      'output_model_path')
+
+        self.data = get_parameter_value(kwargs, 'data')
+        if self.data is None:
+            raise Exception("Training data is None, please check")
+        self.input_dim = len(self.data.TEXT.vocab)
+        self.device = self.data.device
+        self.train_iterator = self.data.train_iterator
+        self.valid_iterator = self.data.valid_iterator
+        self.test_iterator = self.data.test_iterator
         self.model = RNN(self.input_dim,
                          self.embedding_dim,
                          self.hidden_dim,
