@@ -95,10 +95,11 @@ def train(model, iterator, optimizer, criterion, evaluation_metric):
     model.train()
     for batch in iterator:
         optimizer.zero_grad()
+        import pdb;pdb.set_trace()
         if isinstance(batch.text, torch.Tensor):
             predictions = model(batch.text).squeeze(1)
         else:
-            predictions = model(*batch.text).squeeze(1)
+            predictions = model(batch.text[0]).squeeze(1)
         loss = criterion(predictions, batch.label)
         acc = evaluation_metric(predictions, batch.label)
         loss.backward()
