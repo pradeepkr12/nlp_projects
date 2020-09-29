@@ -57,6 +57,7 @@ class model:
         self.best_valid_loss = float('inf')
         self.best_valid_acc = 0
         self.output_model_filepath = self.output_model_path/"rnn_model_weights.pt"
+        print(f"Training in {self.device}")
         for epoch in range(self.n_epochs):
             start_time = time.time()
             train_loss, train_acc = train(self.model,
@@ -95,11 +96,8 @@ def train(model, iterator, optimizer, criterion, evaluation_metric):
     model.train()
     for batch in iterator:
         optimizer.zero_grad()
-        import pdb;pdb.set_trace()
-        if isinstance(batch.text, torch.Tensor):
-            predictions = model(batch.text).squeeze(1)
-        else:
-            predictions = model(batch.text[0]).squeeze(1)
+        # import pdb;pdb.set_trace()
+        predictions = model(batch.text[0]).squeeze(1)
         loss = criterion(predictions, batch.label)
         acc = evaluation_metric(predictions, batch.label)
         loss.backward()
