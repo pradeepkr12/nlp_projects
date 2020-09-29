@@ -1,5 +1,6 @@
 from pathlib import Path
-import os
+import torch
+
 all_data_path = Path(__file__).resolve().parent.parent/"data"
 
 def generate_bigrams(x):
