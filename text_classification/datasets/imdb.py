@@ -20,17 +20,25 @@ class IMDB(Dataset):
         self.tokenizer= get_parameter_value(kwargs, tokenizer, 'spacy')
         self.train_valid_split_ratio = get_parameter_value(kwargs,
                                                            train_valid_split_ratio, 0.7)
-
-        self.TEXT = data.Field(tokenize = tokenizer)
+        self.embedding_vectors = get_parameter_value(kwargs,
+                                                     embedding_vectors)
+        self.TEXT = data.Field(tokenize = tokenizer,
+                               include_lengths=True)
         self.LABEL = data.LabelField(dtype = torch.float)
         self.get_datasets()
         self.get_iterators(self.device, self.batch_size)
 
 
     def get_datasets(self):
+        A
         self.train_data, self.test_data = datasets.IMDB.splits(self.TEXT,
                                                                self.LABEL,
                                                                root=root_path)
+        self.TEXT.build_vocab(self.train_data,
+                              max_size=self.vocab_size,
+                              vectors=self.embedding_vectors,
+                              unk_init = torch.Tensor.normal_)
+        self.LABEL.build_vocab(self.train_data)
         self.train_data, self.valid_data = self.train_data.split(random_state=random.seed(SEED),
                                                                  split_ratio=self.train_valid_split_ratio)
 
@@ -42,6 +50,7 @@ class IMDB(Dataset):
                                                         self.valid_data,
                                                         self.test_data),
                                                         batch_size=self.batch_size,
+                                                        sort_within_batch = True,
                                                         device=self.device)
 
 
