@@ -65,7 +65,7 @@ class model:
         if self.data is None:
             raise Exception("Training data is None, please check")
         self.input_dim = len(self.data.TEXT.vocab)
-        self.padidx = self.data.vocab.stoi[TEXT.pad_token]
+        self.padidx = self.data.TEXT.vocab.stoi[TEXT.pad_token]
         self.device = self.data.device
         self.train_iterator = self.data.train_iterator
         self.valid_iterator = self.data.valid_iterator
