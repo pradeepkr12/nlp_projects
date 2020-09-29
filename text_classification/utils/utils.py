@@ -13,6 +13,39 @@ def get_parameter_value(value_dict, key, default_value=None):
     return value
 
 
+def train(model, iterator, optimizer, criterion, evaluation_metric):
+    epoch_loss = 0
+    epoch_acc = 0
+    model.train()
+    for batch in iterator:
+        optimizer.zero_grad()
+        # import pdb;pdb.set_trace()
+        predictions = model(batch.text[0]).squeeze(1)
+        loss = criterion(predictions, batch.label)
+        acc = evaluation_metric(predictions, batch.label)
+        loss.backward()
+        optimizer.step()
+        epoch_loss += loss.item()
+        epoch_acc += acc.item()
+
+    return epoch_loss / len(iterator), epoch_acc / len(iterator)
+
+
+def evaluate(model, iterator, criterion, evaluation_metric):
+    epoch_loss = 0
+    epoch_acc = 0
+    model.eval()
+    with torch.no_grad():
+        for batch in iterator:
+            predictions = model(batch.text[0]).squeeze(1)
+            loss = criterion(predictions, batch.label)
+            acc = evaluation_metric(predictions, batch.label)
+            epoch_loss += loss.item()
+            epoch_acc += acc.item()
+
+    return epoch_loss / len(iterator), epoch_acc / len(iterator)
+
+
 def epoch_time(start_time, end_time):
     elapsed_time = end_time - start_time
     elapsed_mins = int(elapsed_time / 60)

@@ -85,39 +85,9 @@ class model:
         self.model.load_state_dict(torch.load(saved_model))
         self.test_loss, self.test_acc = evaluate(self.model,
                                                  self.test_iterator,
-                                                 self.criterion)
+                                                 self.criterion,
+                                                 self.evaluation_metric)
 
         print(f'Test Loss: {self.test_loss:.3f} | Test Acc: {self.test_acc*100:.2f}%')
 
 
-def train(model, iterator, optimizer, criterion, evaluation_metric):
-    epoch_loss = 0
-    epoch_acc = 0
-    model.train()
-    for batch in iterator:
-        optimizer.zero_grad()
-        # import pdb;pdb.set_trace()
-        predictions = model(batch.text[0]).squeeze(1)
-        loss = criterion(predictions, batch.label)
-        acc = evaluation_metric(predictions, batch.label)
-        loss.backward()
-        optimizer.step()
-        epoch_loss += loss.item()
-        epoch_acc += acc.item()
-
-    return epoch_loss / len(iterator), epoch_acc / len(iterator)
-
-
-def evaluate(model, iterator, criterion, evaluation_metric):
-    epoch_loss = 0
-    epoch_acc = 0
-    model.eval()
-    with torch.no_grad():
-        for batch in iterator:
-            predictions = model(batch.text[0]).squeeze(1)
-            loss = criterion(predictions, batch.label)
-            acc = evaluation_metric(predictions, batch.label)
-            epoch_loss += loss.item()
-            epoch_acc += acc.item()
-
-    return epoch_loss / len(iterator), epoch_acc / len(iterator)
