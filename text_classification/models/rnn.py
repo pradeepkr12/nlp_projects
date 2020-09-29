@@ -95,7 +95,10 @@ def train(model, iterator, optimizer, criterion, evaluation_metric):
     model.train()
     for batch in iterator:
         optimizer.zero_grad()
-        predictions = model(batch.text).squeeze(1)
+        if isinstance(batch.text, torch.Tensor):
+            predictions = model(batch.text).squeeze(1)
+        else:
+            predictions = model(*batch.text).squeeze(1)
         loss = criterion(predictions, batch.label)
         acc = evaluation_metric(predictions, batch.label)
         loss.backward()
@@ -112,7 +115,7 @@ def evaluate(model, iterator, criterion, evaluation_metric):
     model.eval()
     with torch.no_grad():
         for batch in iterator:
-            predictions = model(batch.text).squeeze(1)
+            predictions = model(*batch.text).squeeze(1)
             loss = criterion(predictions, batch.label)
             acc = evaluation_metric(predictions, batch.label)
             epoch_loss += loss.item()
