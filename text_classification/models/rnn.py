@@ -62,10 +62,12 @@ class model:
             train_loss, train_acc = train(self.model,
                                           self.train_iterator,
                                           self.optimizer,
-                                          self.criterion)
+                                          self.criterion,
+                                          self.evaluation_metric)
             valid_loss, valid_acc = evaluate(self.model,
                                              self.valid_iterator,
-                                             self.criterion)
+                                             self.criterion,
+                                             self.evaluation_metric)
             end_time = time.time()
             epoch_mins, epoch_secs = epoch_time(start_time, end_time)
             if valid_loss < self.best_valid_loss:
