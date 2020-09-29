@@ -1,6 +1,6 @@
 from pathlib import Path
-
-all_data_path = Path.cwd().parent/"data"
+import os
+all_data_path = Path(__file__).resolve().parent.parent/"data"
 
 
 def get_parameter_value(value_dict, key, default_value=None):
