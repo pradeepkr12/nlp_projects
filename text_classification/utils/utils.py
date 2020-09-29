@@ -10,6 +10,7 @@ def get_parameter_value(value_dict, key, default_value=None):
             return None
         else:
             return default_value
+    return value
 
 
 def epoch_time(start_time, end_time):
