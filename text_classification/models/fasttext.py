@@ -1,9 +1,26 @@
-from text_classification.utils.utils import get_parameter_value, epoch_time
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import time
+from text_classification.utils.utils import train, evaluate
+from text_classification.utils.utils import get_parameter_value, epoch_time
+
+
+class FastText(nn.Module):
+    def __init__(self, vocab_size, embedding_dim, output_dim, pad_idx):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx=pad_idx)
+        self.fc = nn.Linear(embedding_dim, output_dim)
+
+    def forward(self, text):
+        #text = [sent len, batch size]
+        embedded = self.embedding(text)
+        #embedded = [sent len, batch size, emb dim]
+        embedded = embedded.permute(1, 0, 2)
+        #embedded = [batch size, sent len, emb dim]
+        pooled = F.avg_pool2d(embedded, (embedded.shape[1], 1)).squeeze(1)
+        #pooled = [batch size, embedding_dim]
+        return self.fc(pooled)
 
 
 class model:
@@ -16,23 +33,32 @@ class model:
                                                      'evaluation_metric')
         self.output_model_path = get_parameter_value(kwargs,
                                                      'output_model_path')
-
-        self.model_obj = get_parameter_value(kwargs, 'model')
-        if self.model_obj is None:
-            raise Exception("Model not found")
+        self.n_layers = get_parameter_value(kwargs, 'n_layers')
+        self.bidirectional = get_parameter_value(kwargs, 'bidirectional')
+        self.dropout = get_parameter_value(kwargs, 'dropout')
         self.data = get_parameter_value(kwargs, 'data')
         if self.data is None:
             raise Exception("Training data is None, please check")
         self.input_dim = len(self.data.TEXT.vocab)
+        self.padidx = self.data.vocab.stoi[TEXT.pad_token]
         self.device = self.data.device
         self.train_iterator = self.data.train_iterator
         self.valid_iterator = self.data.valid_iterator
         self.test_iterator = self.data.test_iterator
-        self.model = self.model_obj(self.input_dim,
-                                    self.embedding_dim,
-                                    self.hidden_dim,
-                                    self.output_dim)
-        self.optimizer = optim.SGD(self.model.parameters(), lr=1e-3)
+        self.model = FastText(self.input_dim,
+                        self.embedding_dim,
+                        self.hidden_dim,
+                        self.output_dim,
+                        self.padidx
+                        )
+        self.pretrained_embeddings = self.data.TEXT.vocab.vectors
+        self.model.embedding.weight.data.copy_(self.pretrained_embeddings)
+        UNK_IDX = self.data.TEXT.vocab.stoi[TEXT.unk_token]
+
+        self.model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)
+        self.model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)
+
+        self.optimizer = optim.Adam(model.parameters())
         self.criterion = nn.BCEWithLogitsLoss()
         # change deivice
         self.model = self.model.to(self.device)

@@ -2,6 +2,11 @@ from pathlib import Path
 import os
 all_data_path = Path(__file__).resolve().parent.parent/"data"
 
+def generate_bigrams(x):
+    n_grams = set(zip(*[x[i:] for i in range(2)]))
+    for n_gram in n_grams:
+        x.append(' '.join(n_gram))
+    return x
 
 def get_parameter_value(value_dict, key, default_value=None):
     value = value_dict.get(key)
