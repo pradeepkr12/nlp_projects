@@ -1,7 +1,6 @@
 from text_classification.datasets.imdb import IMDB
 from text_classification.utils.metrics import binary_accuracy
-from text_classification.models.rnn import RNN2
-from text_classification.models.model import model
+from text_classification.models.rnn2 import model
 from text_classification.utils.utils import all_data_path
 
 dataset_params = {
@@ -9,8 +8,7 @@ dataset_params = {
     'batch_size': 32,
     'tokenizer': 'spacy',
     'train_valid_split_ratio': 0.7,
-    'unk_initflag': True,
-    'embedding_vector': 'glove.6B.100d'
+    'embedding_vectors': 'glove.6B.100d'
 }
 imdb_data = IMDB(**dataset_params)
 
@@ -24,8 +22,6 @@ model_params = {
     'evaluation_metric': binary_accuracy,
     'output_model_path': all_data_path,
     'data': imdb_data,
-    'model': RNN,
-
 }
 
 clf = model(**model_params)
