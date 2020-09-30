@@ -69,7 +69,7 @@ def get_bert_tokenizer(model='bert-base-uncased'):
     return BertTokenizer.from_pretrained(model)
 
 def get_bert_preprocessing():
-    import pdb;pdb.set_trace()
+    # import pdb;pdb.set_trace()
     tokenizer = get_bert_tokenizer()
     return tokenizer.convert_tokens_to_ids
 
