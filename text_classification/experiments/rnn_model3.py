@@ -8,9 +8,6 @@ dataset_params = {
     'batch_size': 32,
     'tokenizer': 'spacy',
     'train_valid_split_ratio': 0.7,
-    'unk_initflag': True,
-    'preprocessing': generate_bigrams,
-    'embedding_vector': 'glove.6B.100d'
 }
 imdb_data = IMDB(**dataset_params)
 
