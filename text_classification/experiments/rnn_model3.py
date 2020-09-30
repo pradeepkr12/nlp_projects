@@ -1,7 +1,6 @@
 from text_classification.datasets.imdb import IMDB
 from text_classification.utils.metrics import binary_accuracy
-from text_classification.models.rnn import RNN2
-from text_classification.models.model import model
+from text_classification.models.fasttext import model
 from text_classification.utils.utils import all_data_path, generate_bigrams
 
 dataset_params = {

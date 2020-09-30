@@ -40,25 +40,19 @@ class model:
         if self.data is None:
             raise Exception("Training data is None, please check")
         self.input_dim = len(self.data.TEXT.vocab)
-        self.padidx = self.data.vocab.stoi[TEXT.pad_token]
+        self.padidx = self.data.TEXT.vocab.stoi[self.data.TEXT.pad_token]
         self.device = self.data.device
         self.train_iterator = self.data.train_iterator
         self.valid_iterator = self.data.valid_iterator
         self.test_iterator = self.data.test_iterator
+        # --- model init
         self.model = FastText(self.input_dim,
                         self.embedding_dim,
                         self.hidden_dim,
                         self.output_dim,
-                        self.padidx
                         )
-        self.pretrained_embeddings = self.data.TEXT.vocab.vectors
-        self.model.embedding.weight.data.copy_(self.pretrained_embeddings)
-        UNK_IDX = self.data.TEXT.vocab.stoi[TEXT.unk_token]
-
-        self.model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)
-        self.model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)
-
-        self.optimizer = optim.Adam(model.parameters())
+        # -----
+        self.optimizer = optim.SGD(self.model.parameters(), lr=1e-3)
         self.criterion = nn.BCEWithLogitsLoss()
         # change deivice
         self.model = self.model.to(self.device)
@@ -75,6 +69,7 @@ class model:
         print(f"Training in {self.device}")
         for epoch in range(self.n_epochs):
             start_time = time.time()
+            # import pdb;pdb.set_trace()
             train_loss, train_acc = train(self.model,
                                           self.train_iterator,
                                           self.optimizer,
