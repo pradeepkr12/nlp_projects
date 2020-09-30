@@ -18,7 +18,7 @@ class FastText(nn.Module):
         #embedded = [sent len, batch size, emb dim]
         embedded = embedded.permute(1, 0, 2)
         #embedded = [batch size, sent len, emb dim]
-        pooled = F.avg_pool2d(embedded, (embedded.shape[1], 1)).squeeze(1)
+        pooled = nn.functional.avg_pool2d(embedded, (embedded.shape[1], 1)).squeeze(1)
         #pooled = [batch size, embedding_dim]
         return self.fc(pooled)
 
