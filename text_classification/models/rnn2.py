@@ -6,7 +6,7 @@ from text_classification.utils.utils import train, evaluate
 from text_classification.utils.utils import get_parameter_value, epoch_time
 
 
-class RNN2(nn.Module):
+class RNN(nn.Module):
     def __init__(self,
                  vocab_size,
                  embedding_dim,
@@ -65,7 +65,7 @@ class model:
         if self.data is None:
             raise Exception("Training data is None, please check")
         self.input_dim = len(self.data.TEXT.vocab)
-        self.padidx = self.data.TEXT.vocab.stoi[TEXT.pad_token]
+        self.padidx = self.data.TEXT.vocab.stoi[self.data.TEXT.pad_token]
         self.device = self.data.device
         self.train_iterator = self.data.train_iterator
         self.valid_iterator = self.data.valid_iterator
