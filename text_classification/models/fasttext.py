@@ -1,10 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 import time
 from text_classification.utils.utils import train, evaluate
 from text_classification.utils.utils import get_parameter_value, epoch_time
-
 
 class FastText(nn.Module):
     def __init__(self, vocab_size, embedding_dim, output_dim, pad_idx):
