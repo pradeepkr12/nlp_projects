@@ -104,6 +104,7 @@ class model:
         print(f"Training in {self.device}")
         for epoch in range(self.n_epochs):
             start_time = time.time()
+            import pdb;pdb.set_trace()
             train_loss, train_acc = train(self.model,
                                           self.train_iterator,
                                           self.optimizer,
