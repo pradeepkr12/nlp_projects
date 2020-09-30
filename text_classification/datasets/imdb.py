@@ -41,6 +41,7 @@ class IMDB():
         self.TEXT.build_vocab(self.train_data,
                               max_size=self.vocab_size,
                               vectors=self.embedding_vectors,
+                              vectors_cache=root_path,
                               unk_init = self.unk_init)
         self.LABEL.build_vocab(self.train_data)
         self.train_data, self.valid_data = self.train_data.split(random_state=random.seed(SEED),
