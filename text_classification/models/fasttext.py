@@ -48,11 +48,17 @@ class model:
         # --- model init
         self.model = FastText(self.input_dim,
                         self.embedding_dim,
-                        self.hidden_dim,
                         self.output_dim,
+                        self.padidx
                         )
+        self.pretrained_embeddings = self.data.TEXT.vocab.vectors
+        self.model.embedding.weight.data.copy_(self.pretrained_embeddings)
+        UNK_IDX = self.data.TEXT.vocab.stoi[self.data.TEXT.unk_token]
+        PAD_IDX = self.padidx
+        self.model.embedding.weight.data[UNK_IDX] = torch.zeros(self.embedding_dim)
+        self.model.embedding.weight.data[PAD_IDX] = torch.zeros(self.embedding_dim)
         # -----
-        self.optimizer = optim.SGD(self.model.parameters(), lr=1e-3)
+        self.optimizer = optim.Adam(self.model.parameters())
         self.criterion = nn.BCEWithLogitsLoss()
         # change deivice
         self.model = self.model.to(self.device)
