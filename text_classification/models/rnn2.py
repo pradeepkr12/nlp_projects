@@ -81,7 +81,7 @@ class model:
                         )
         self.pretrained_embeddings = self.data.TEXT.vocab.vectors
         self.model.embedding.weight.data.copy_(self.pretrained_embeddings)
-        UNK_IDX = self.data.TEXT.vocab.stoi[TEXT.unk_token]
+        UNK_IDX = self.data.TEXT.vocab.stoi[self.TEXT.unk_token]
 
         self.model.embedding.weight.data[UNK_IDX] = torch.zeros(EMBEDDING_DIM)
         self.model.embedding.weight.data[PAD_IDX] = torch.zeros(EMBEDDING_DIM)
