@@ -87,7 +87,7 @@ class model:
         self.model.embedding.weight.data[UNK_IDX] = torch.zeros(self.embedding_dim)
         self.model.embedding.weight.data[PAD_IDX] = torch.zeros(self.embedding_dim)
         # -----
-        self.optimizer = optim.Adam(model.parameters())
+        self.optimizer = optim.Adam(self.model.parameters())
         self.criterion = nn.BCEWithLogitsLoss()
         # change deivice
         self.model = self.model.to(self.device)
