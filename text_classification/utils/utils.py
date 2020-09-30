@@ -1,4 +1,6 @@
 from pathlib import Path
+from transformers import BertTokenizer
+
 import torch
 
 all_data_path = Path(__file__).resolve().parent.parent/"data"
@@ -62,3 +64,34 @@ def epoch_time(start_time, end_time):
     elapsed_mins = int(elapsed_time / 60)
     elapsed_secs = int(elapsed_time - (elapsed_mins * 60))
     return elapsed_mins, elapsed_secs
+
+def get_bert_tokenizer(model='bert-base-uncased'):
+    return BertTokenizer.from_pretrained(model)
+
+def get_bert_preprocessing():
+    import pdb;pdb.set_trace()
+    tokenizer = get_bert_tokenizer()
+    return tokenizer.convert_tokens_to_ids
+
+def tokenize_and_cut(sentence, model='bert-base-uncased'):
+    tokenizer = get_bert_tokenizer()
+    max_input_length = tokenizer.max_model_input_sizes[model]
+    tokens = tokenizer.tokenize(sentence)
+    tokens = tokens[:max_input_length-2]
+    return tokens
+
+def get_bert_init_token():
+    tokenizer = get_bert_tokenizer()
+    return tokenizer.cls_token_id
+
+def get_bert_eos_token():
+    tokenizer = get_bert_unk_token()
+    return tokenizer.eos_token_idx
+
+def get_bert_pad_token():
+    tokenizer = get_bert_unk_token()
+    return tokenizer.pad_token_idx
+
+def get_bert_unk_token():
+    tokenizer = get_bert_unk_token()
+    return tokenizer.unk_token_idx

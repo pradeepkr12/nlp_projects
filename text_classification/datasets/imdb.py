@@ -18,21 +18,36 @@ class IMDB():
         self.batch_size= get_parameter_value(kwargs, 'batch_size', 32)
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-        self.tokenizer= get_parameter_value(kwargs, 'tokenizer', 'spacy')
+        self.tokenize= get_parameter_value(kwargs, 'tokenize', 'spacy')
         self.train_valid_split_ratio = get_parameter_value(kwargs,
                                                            'train_valid_split_ratio', 0.7)
         self.embedding_vectors = get_parameter_value(kwargs,
                                                      'embedding_vectors')
         self.unk_init = get_parameter_value(kwargs, 'unk_initflag')
         self.include_lengths = get_parameter_value(kwargs, 'include_lengths', False)
+        self.preprocessing = get_parameter_value(kwargs, 'preprocessing')
+        self.init_token = get_parameter_value(kwargs, 'init_token')
+        self.eos_token = get_parameter_value(kwargs, 'eos_token')
+        self.pad_token = get_parameter_value(kwargs, 'pad_token')
+        self.unk_token = get_parameter_value(kwargs, 'unk_token')
+        self.batch_first = get_parameter_value(kwargs, 'batch_first', False)
+        self.use_vocab = get_parameter_value(kwargs, 'use_vocab', True)
         self.vectors_cache = root_path
         if self.unk_init is True:
             self.unk_init = torch.Tensor.normal_
         else:
             self.unk_init = None
             self.vectors_cache = None
-        self.TEXT = data.Field(tokenize=self.tokenizer,
-                               include_lengths=self.include_lengths)
+        #----
+        self.TEXT = data.Field(tokenize=self.tokenize,
+                               use_vocab=self.use_vocab,
+                               batch_first=self.batch_first,
+                               include_lengths=self.include_lengths,
+                               preprocessing = self.preprocessing,
+                               init_token = self.init_token,
+                               eos_token = self.eos_token,
+                               pad_token = self.pad_token,
+                               unk_token = self.unk_token)
         self.LABEL = data.LabelField(dtype=torch.float)
         self.get_datasets()
         self.get_iterators(self.device, self.batch_size)

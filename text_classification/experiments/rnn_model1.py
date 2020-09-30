@@ -7,7 +7,7 @@ from text_classification.utils.utils import all_data_path
 dataset_params = {
     'vocab_size': 25000,
     'batch_size': 32,
-    'tokenizer': 'spacy',
+    'tokenize': 'spacy',
     'train_valid_split_ratio': 0.7
 }
 imdb_data = IMDB(**dataset_params)
