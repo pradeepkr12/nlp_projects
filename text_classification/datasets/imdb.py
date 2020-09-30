@@ -56,11 +56,12 @@ class IMDB():
         self.train_data, self.test_data = datasets.IMDB.splits(self.TEXT,
                                                                self.LABEL,
                                                                root=root_path)
-        self.TEXT.build_vocab(self.train_data,
-                              max_size=self.vocab_size,
-                              vectors=self.embedding_vectors,
-                              vectors_cache=self.vectors_cache,
-                              unk_init = self.unk_init)
+        if self.use_vocab:
+            self.TEXT.build_vocab(self.train_data,
+                                max_size=self.vocab_size,
+                                vectors=self.embedding_vectors,
+                                vectors_cache=self.vectors_cache,
+                                unk_init = self.unk_init)
         self.LABEL.build_vocab(self.train_data)
         self.train_data, self.valid_data = self.train_data.split(random_state=random.seed(SEED),
                                                                  split_ratio=self.train_valid_split_ratio)
