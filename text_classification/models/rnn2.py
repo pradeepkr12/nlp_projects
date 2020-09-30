@@ -70,6 +70,7 @@ class model:
         self.train_iterator = self.data.train_iterator
         self.valid_iterator = self.data.valid_iterator
         self.test_iterator = self.data.test_iterator
+        # --- model init
         self.model = RNN(self.input_dim,
                         self.embedding_dim,
                         self.hidden_dim,
@@ -82,10 +83,10 @@ class model:
         self.pretrained_embeddings = self.data.TEXT.vocab.vectors
         self.model.embedding.weight.data.copy_(self.pretrained_embeddings)
         UNK_IDX = self.data.TEXT.vocab.stoi[self.data.TEXT.unk_token]
-
+        PAD_IDX = self.padidx
         self.model.embedding.weight.data[UNK_IDX] = torch.zeros(self.embedding_dim)
         self.model.embedding.weight.data[PAD_IDX] = torch.zeros(self.embedding_dim)
-
+        # -----
         self.optimizer = optim.Adam(model.parameters())
         self.criterion = nn.BCEWithLogitsLoss()
         # change deivice
