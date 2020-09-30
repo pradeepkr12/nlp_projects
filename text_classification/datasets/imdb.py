@@ -24,7 +24,7 @@ class IMDB():
         self.embedding_vectors = get_parameter_value(kwargs,
                                                      'embedding_vectors')
         self.unk_init = get_parameter_value(kwargs, 'unk_initflag')
-        self.inlcude_lengths = get_parameter_value(kwargs, 'include_lengths', False)
+        self.include_lengths = get_parameter_value(kwargs, 'include_lengths', False)
         if self.unk_init is True:
             self.unk_init = torch.Tensor.normal_
         else:
