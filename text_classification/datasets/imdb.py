@@ -25,10 +25,12 @@ class IMDB():
                                                      'embedding_vectors')
         self.unk_init = get_parameter_value(kwargs, 'unk_initflag')
         self.include_lengths = get_parameter_value(kwargs, 'include_lengths', False)
+        self.vectors_cache = root_path
         if self.unk_init is True:
             self.unk_init = torch.Tensor.normal_
         else:
             self.unk_init = None
+            self.vectors_cache = None
         self.TEXT = data.Field(tokenize=self.tokenizer,
                                include_lengths=self.include_lengths)
         self.LABEL = data.LabelField(dtype=torch.float)
@@ -42,7 +44,7 @@ class IMDB():
         self.TEXT.build_vocab(self.train_data,
                               max_size=self.vocab_size,
                               vectors=self.embedding_vectors,
-                              vectors_cache=root_path,
+                              vectors_cache=self.vectors_cache,
                               unk_init = self.unk_init)
         self.LABEL.build_vocab(self.train_data)
         self.train_data, self.valid_data = self.train_data.split(random_state=random.seed(SEED),
